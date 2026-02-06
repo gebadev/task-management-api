@@ -3,9 +3,11 @@
 ## 1. プロジェクト概要
 
 ### 1.1 目的
+
 Claude Codeを用いた並列開発の検証を目的とした、シンプルなタスク管理REST APIの開発。複数の開発者（Claude Codeインスタンス）が同時に異なる機能を実装し、マージする流れを検証する。
 
 ### 1.2 主要機能
+
 - タスクのCRUD操作
 - ユーザー管理
 - タスクへのコメント機能
@@ -14,6 +16,7 @@ Claude Codeを用いた並列開発の検証を目的とした、シンプルな
 - 統計情報の取得
 
 ### 1.3 技術スタック
+
 - **ランタイム**: Node.js (v18以上)
 - **フレームワーク**: Express.js
 - **データベース**: SQLite (開発用、シンプルさ重視)
@@ -108,36 +111,39 @@ erDiagram
 ### 3.2 テーブル定義
 
 #### users テーブル
-| カラム名 | 型 | 制約 | 説明 |
-|---------|-----|------|------|
-| id | INTEGER | PRIMARY KEY, AUTOINCREMENT | ユーザーID |
-| username | TEXT | NOT NULL, UNIQUE | ユーザー名 |
-| email | TEXT | NOT NULL, UNIQUE | メールアドレス |
-| password_hash | TEXT | NOT NULL | パスワードハッシュ |
-| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 作成日時 |
+
+| カラム名      | 型       | 制約                       | 説明               |
+| ------------- | -------- | -------------------------- | ------------------ |
+| id            | INTEGER  | PRIMARY KEY, AUTOINCREMENT | ユーザーID         |
+| username      | TEXT     | NOT NULL, UNIQUE           | ユーザー名         |
+| email         | TEXT     | NOT NULL, UNIQUE           | メールアドレス     |
+| password_hash | TEXT     | NOT NULL                   | パスワードハッシュ |
+| created_at    | DATETIME | DEFAULT CURRENT_TIMESTAMP  | 作成日時           |
 
 #### tasks テーブル
-| カラム名 | 型 | 制約 | 説明 |
-|---------|-----|------|------|
-| id | INTEGER | PRIMARY KEY, AUTOINCREMENT | タスクID |
-| title | TEXT | NOT NULL | タスクタイトル |
-| description | TEXT | NULL | タスク詳細 |
-| status | TEXT | NOT NULL, DEFAULT 'todo' | ステータス (todo/in_progress/done) |
-| priority | TEXT | NOT NULL, DEFAULT 'medium' | 優先度 (low/medium/high) |
-| creator_id | INTEGER | NOT NULL, FK | 作成者ID |
-| assignee_id | INTEGER | NULL, FK | 担当者ID |
-| due_date | DATETIME | NULL | 期限 |
-| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 作成日時 |
-| updated_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 更新日時 |
+
+| カラム名    | 型       | 制約                       | 説明                               |
+| ----------- | -------- | -------------------------- | ---------------------------------- |
+| id          | INTEGER  | PRIMARY KEY, AUTOINCREMENT | タスクID                           |
+| title       | TEXT     | NOT NULL                   | タスクタイトル                     |
+| description | TEXT     | NULL                       | タスク詳細                         |
+| status      | TEXT     | NOT NULL, DEFAULT 'todo'   | ステータス (todo/in_progress/done) |
+| priority    | TEXT     | NOT NULL, DEFAULT 'medium' | 優先度 (low/medium/high)           |
+| creator_id  | INTEGER  | NOT NULL, FK               | 作成者ID                           |
+| assignee_id | INTEGER  | NULL, FK                   | 担当者ID                           |
+| due_date    | DATETIME | NULL                       | 期限                               |
+| created_at  | DATETIME | DEFAULT CURRENT_TIMESTAMP  | 作成日時                           |
+| updated_at  | DATETIME | DEFAULT CURRENT_TIMESTAMP  | 更新日時                           |
 
 #### comments テーブル
-| カラム名 | 型 | 制約 | 説明 |
-|---------|-----|------|------|
-| id | INTEGER | PRIMARY KEY, AUTOINCREMENT | コメントID |
-| task_id | INTEGER | NOT NULL, FK | タスクID |
-| user_id | INTEGER | NOT NULL, FK | ユーザーID |
-| content | TEXT | NOT NULL | コメント内容 |
-| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 作成日時 |
+
+| カラム名   | 型       | 制約                       | 説明         |
+| ---------- | -------- | -------------------------- | ------------ |
+| id         | INTEGER  | PRIMARY KEY, AUTOINCREMENT | コメントID   |
+| task_id    | INTEGER  | NOT NULL, FK               | タスクID     |
+| user_id    | INTEGER  | NOT NULL, FK               | ユーザーID   |
+| content    | TEXT     | NOT NULL                   | コメント内容 |
+| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP  | 作成日時     |
 
 ---
 
@@ -147,41 +153,42 @@ erDiagram
 
 #### タスク関連
 
-| メソッド | エンドポイント | 説明 |
-|---------|---------------|------|
-| GET | /api/tasks | タスク一覧取得（フィルタリング対応） |
-| POST | /api/tasks | タスク作成 |
-| GET | /api/tasks/:id | タスク詳細取得 |
-| PUT | /api/tasks/:id | タスク更新 |
-| DELETE | /api/tasks/:id | タスク削除 |
-| PUT | /api/tasks/:id/assign | タスク割り当て |
+| メソッド | エンドポイント        | 説明                                 |
+| -------- | --------------------- | ------------------------------------ |
+| GET      | /api/tasks            | タスク一覧取得（フィルタリング対応） |
+| POST     | /api/tasks            | タスク作成                           |
+| GET      | /api/tasks/:id        | タスク詳細取得                       |
+| PUT      | /api/tasks/:id        | タスク更新                           |
+| DELETE   | /api/tasks/:id        | タスク削除                           |
+| PUT      | /api/tasks/:id/assign | タスク割り当て                       |
 
 #### コメント関連
 
-| メソッド | エンドポイント | 説明 |
-|---------|---------------|------|
-| GET | /api/tasks/:id/comments | タスクのコメント一覧取得 |
-| POST | /api/tasks/:id/comments | コメント作成 |
+| メソッド | エンドポイント          | 説明                     |
+| -------- | ----------------------- | ------------------------ |
+| GET      | /api/tasks/:id/comments | タスクのコメント一覧取得 |
+| POST     | /api/tasks/:id/comments | コメント作成             |
 
 #### ユーザー関連
 
-| メソッド | エンドポイント | 説明 |
-|---------|---------------|------|
-| GET | /api/users | ユーザー一覧取得 |
-| POST | /api/users | ユーザー作成 |
-| GET | /api/users/:id | ユーザー詳細取得 |
+| メソッド | エンドポイント | 説明             |
+| -------- | -------------- | ---------------- |
+| GET      | /api/users     | ユーザー一覧取得 |
+| POST     | /api/users     | ユーザー作成     |
+| GET      | /api/users/:id | ユーザー詳細取得 |
 
 #### 統計関連
 
-| メソッド | エンドポイント | 説明 |
-|---------|---------------|------|
-| GET | /api/stats | タスク統計情報取得 |
+| メソッド | エンドポイント | 説明               |
+| -------- | -------------- | ------------------ |
+| GET      | /api/stats     | タスク統計情報取得 |
 
 ### 4.2 詳細仕様例
 
 #### GET /api/tasks
 
 **クエリパラメータ**:
+
 - `status`: フィルタ（todo/in_progress/done）
 - `priority`: フィルタ（low/medium/high）
 - `assignee_id`: 担当者IDでフィルタ
@@ -189,6 +196,7 @@ erDiagram
 - `offset`: オフセット（デフォルト: 0）
 
 **レスポンス例**:
+
 ```json
 {
   "success": true,
@@ -217,6 +225,7 @@ erDiagram
 #### POST /api/tasks
 
 **リクエストボディ**:
+
 ```json
 {
   "title": "新しいタスク",
@@ -228,6 +237,7 @@ erDiagram
 ```
 
 **レスポンス例**:
+
 ```json
 {
   "success": true,
@@ -303,18 +313,21 @@ task-management-api/
 並列開発を検証するため、以下のIssueに分割することを推奨します。各Issueは比較的独立しており、同時開発が可能です。
 
 ### Issue #1: プロジェクトセットアップ
+
 - `package.json`作成
 - 基本的なディレクトリ構造構築
 - Express基本設定
 - ESLint/Prettier設定
 
 ### Issue #2: データベース設計と初期化
+
 - SQLiteセットアップ
 - スキーマ定義（schema.sql）
 - DB接続モジュール（db/connection.js）
 - シードデータ作成
 
 ### Issue #3: ユーザー管理機能
+
 - ユーザーCRUDエンドポイント実装
 - routes/users.js
 - controllers/usersController.js
@@ -322,6 +335,7 @@ task-management-api/
 - tests/users.test.js
 
 ### Issue #4: タスクCRUD機能（基本）
+
 - タスクCRUD基本エンドポイント実装
 - routes/tasks.js
 - controllers/tasksController.js
@@ -329,12 +343,14 @@ task-management-api/
 - tests/tasks.test.js（基本テスト）
 
 ### Issue #5: タスクフィルタリング機能
+
 - タスク一覧のフィルタリング実装
 - services/taskService.jsへのフィルタロジック追加
 - クエリパラメータ対応
 - tests/tasks.test.js（フィルタテスト追加）
 
 ### Issue #6: タスク割り当て機能
+
 - タスク割り当てエンドポイント実装
 - PUT /api/tasks/:id/assign
 - controllers/tasksController.js（assign機能追加）
@@ -342,6 +358,7 @@ task-management-api/
 - tests/tasks.test.js（割り当てテスト追加）
 
 ### Issue #7: コメント機能
+
 - コメントCRUDエンドポイント実装
 - routes/comments.js
 - controllers/commentsController.js
@@ -349,6 +366,7 @@ task-management-api/
 - tests/comments.test.js
 
 ### Issue #8: 統計情報機能
+
 - タスク統計エンドポイント実装
 - routes/stats.js
 - controllers/statsController.js
@@ -356,12 +374,14 @@ task-management-api/
 - tests/stats.test.js
 
 ### Issue #9: エラーハンドリングとバリデーション
+
 - グローバルエラーハンドラー実装
 - middleware/errorHandler.js
 - middleware/validators.js
 - 各エンドポイントへのバリデーション追加
 
 ### Issue #10: ドキュメントとREADME
+
 - API仕様書詳細化
 - README.md作成
 - セットアップ手順
@@ -374,12 +394,14 @@ task-management-api/
 以下のファイルは複数のIssueで変更される可能性が高く、マージコンフリクトが発生しやすい：
 
 ### 高頻度の競合が予想されるファイル
+
 - `src/routes/index.js` - 全ルートの集約
 - `src/app.js` - ミドルウェア登録
 - `package.json` - 依存関係追加
 - `README.md` - ドキュメント更新
 
 ### 競合解決の方針
+
 1. こまめなpull/rebase
 2. 機能ごとのブランチ戦略
 3. コードレビューでの調整
@@ -409,15 +431,18 @@ graph LR
 ## 9. テスト戦略
 
 ### 9.1 テストレベル
+
 - **単体テスト**: 各サービス層の関数
 - **統合テスト**: APIエンドポイントのE2Eテスト
 
 ### 9.2 テストカバレッジ目標
+
 - 全体: 80%以上
 - Services層: 90%以上
 - Controllers層: 80%以上
 
 ### 9.3 テスト実行
+
 ```bash
 # 全テスト実行
 npm test
@@ -434,10 +459,12 @@ npm run test:watch
 ## 10. セットアップ手順
 
 ### 10.1 必要な環境
+
 - Node.js v18以上
 - npm v9以上
 
 ### 10.2 初回セットアップ
+
 ```bash
 # 依存関係インストール
 npm install
@@ -450,6 +477,7 @@ npm run dev
 ```
 
 ### 10.3 開発コマンド
+
 ```bash
 # 開発サーバー起動（ホットリロード）
 npm run dev
@@ -469,15 +497,18 @@ npm run format
 ## 11. 非機能要件
 
 ### 11.1 パフォーマンス
+
 - API応答時間: 200ms以内（通常時）
 - 同時接続数: 100接続まで対応
 
 ### 11.2 セキュリティ
+
 - パスワードはbcryptでハッシュ化
 - SQLインジェクション対策（パラメータ化クエリ）
 - XSS対策（入力サニタイズ）
 
 ### 11.3 可用性
+
 - 開発環境での使用を想定
 - エラー時の適切なHTTPステータスコード返却
 - 詳細なエラーログ出力
@@ -487,6 +518,7 @@ npm run format
 ## 12. 今後の拡張案
 
 並列開発検証後、以下の機能を追加可能：
+
 - 認証・認可（JWT）
 - タスクのタグ機能
 - ファイル添付機能
