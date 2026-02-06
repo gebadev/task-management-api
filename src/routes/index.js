@@ -7,15 +7,19 @@ const router = express.Router();
 // - Issue #7: Comment routes
 // - Issue #8: Stats routes
 
-// Example:
+// Comment routes (Issue #5/7)
+const commentRoutes = require('./comments');
+
+// Register comment routes as nested routes under tasks
+router.use('/tasks/:id/comments', commentRoutes);
+
+// Example for other routes:
 // const taskRoutes = require('./tasks');
 // const userRoutes = require('./users');
-// const commentRoutes = require('./comments');
 // const statsRoutes = require('./stats');
 //
 // router.use('/tasks', taskRoutes);
 // router.use('/users', userRoutes);
-// router.use('/comments', commentRoutes);
 // router.use('/stats', statsRoutes);
 
 module.exports = router;
