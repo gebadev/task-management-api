@@ -15,8 +15,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes will be added here by other issues
-// app.use('/api', routes);
+// API routes
+const routes = require('./routes');
+app.use('/api', routes);
 
 // 404 handler
 app.use((req, res) => {
