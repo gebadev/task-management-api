@@ -8,6 +8,7 @@ module.exports = {
     '!src/db/seed.sql',
   ],
   testMatch: ['**/tests/**/*.test.js'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   coverageThreshold: {
     global: {
       branches: 80,
