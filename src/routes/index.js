@@ -7,14 +7,16 @@ const router = express.Router();
 // - Issue #7: Comment routes
 // - Issue #8: Stats routes
 
+const userRoutes = require('./users');
+
+router.use('/users', userRoutes);
+
 // Example:
 // const taskRoutes = require('./tasks');
-// const userRoutes = require('./users');
 // const commentRoutes = require('./comments');
 // const statsRoutes = require('./stats');
 //
 // router.use('/tasks', taskRoutes);
-// router.use('/users', userRoutes);
 // router.use('/comments', commentRoutes);
 // router.use('/stats', statsRoutes);
 
