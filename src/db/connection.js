@@ -109,6 +109,54 @@ function get(db, sql, params = []) {
   });
 }
 
+// 高レベルAPI - 接続の管理を自動化
+const dbAPI = {
+  /**
+   * クエリを実行（SELECT用）- 複数行
+   * @param {string} sql
+   * @param {Array} params
+   * @returns {Promise<Array>}
+   */
+  async all(sql, params = []) {
+    const db = await getConnection();
+    try {
+      return await query(db, sql, params);
+    } finally {
+      await closeConnection(db);
+    }
+  },
+
+  /**
+   * クエリを実行（SELECT用）- 単一行
+   * @param {string} sql
+   * @param {Array} params
+   * @returns {Promise<Object|undefined>}
+   */
+  async get(sql, params = []) {
+    const db = await getConnection();
+    try {
+      return await get(db, sql, params);
+    } finally {
+      await closeConnection(db);
+    }
+  },
+
+  /**
+   * クエリを実行（INSERT/UPDATE/DELETE用）
+   * @param {string} sql
+   * @param {Array} params
+   * @returns {Promise<{lastID: number, changes: number}>}
+   */
+  async run(sql, params = []) {
+    const db = await getConnection();
+    try {
+      return await run(db, sql, params);
+    } finally {
+      await closeConnection(db);
+    }
+  }
+};
+
 module.exports = {
   getConnection,
   closeConnection,
@@ -116,4 +164,6 @@ module.exports = {
   run,
   get,
   DB_PATH,
+  // 高レベルAPI（推奨）
+  ...dbAPI
 };
