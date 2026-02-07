@@ -1,4 +1,5 @@
 const express = require('express');
+const routes = require('./routes');
 
 const app = express();
 
@@ -15,8 +16,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes 
-const routes = require('./routes');
+// API routes
 app.use('/api', routes);
 
 // 404 handler

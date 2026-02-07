@@ -2,8 +2,9 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
-// データベースファイルのパス
-const DB_PATH = path.join(__dirname, '../../data/tasks.db');
+// データベースファイルのパス（テスト環境では環境変数で上書き可能）
+const DB_PATH =
+  process.env.TEST_DB_PATH || path.join(__dirname, '../../data/tasks.db');
 
 // dataディレクトリが存在しない場合は作成
 const DATA_DIR = path.dirname(DB_PATH);
