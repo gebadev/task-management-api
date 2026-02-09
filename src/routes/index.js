@@ -19,9 +19,8 @@ router.use('/tasks', taskRoutes);
 const commentRoutes = require('./comments');
 router.use('/tasks/:id/comments', commentRoutes);
 
-// Future routes:
-// const statsRoutes = require('./stats');
-//
-// router.use('/stats', statsRoutes);
+// Issue #8: Stats routes
+const statsRoutes = require('./stats');
+router.use('/stats', statsRoutes);
 
 module.exports = router;
