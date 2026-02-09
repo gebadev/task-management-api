@@ -105,7 +105,7 @@ describe('Comments API Tests', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'Invalid task ID');
+      expect(response.body).toHaveProperty('error', 'Validation failed');
     });
 
     it('should return 404 for non-existent task', async () => {
@@ -154,7 +154,7 @@ describe('Comments API Tests', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'user_id and content are required');
+      expect(response.body).toHaveProperty('error', 'Validation failed');
     });
 
     it('should return 400 for missing content', async () => {
@@ -168,7 +168,7 @@ describe('Comments API Tests', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'user_id and content are required');
+      expect(response.body).toHaveProperty('error', 'Validation failed');
     });
 
     it('should return 400 for empty content', async () => {
@@ -183,7 +183,7 @@ describe('Comments API Tests', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'Content must be a non-empty string');
+      expect(response.body).toHaveProperty('error', 'Validation failed');
     });
 
     it('should return 400 for invalid user_id', async () => {
@@ -198,7 +198,7 @@ describe('Comments API Tests', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'user_id must be a positive integer');
+      expect(response.body).toHaveProperty('error', 'Validation failed');
     });
 
     it('should return 400 for invalid task ID', async () => {
@@ -213,7 +213,7 @@ describe('Comments API Tests', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'Invalid task ID');
+      expect(response.body).toHaveProperty('error', 'Validation failed');
     });
 
     it('should return 404 for non-existent task', async () => {

@@ -2,7 +2,7 @@ const statsService = require('../services/statsService');
 
 const statsController = {
   // GET /api/stats - タスク統計情報取得
-  async getStats(req, res) {
+  async getStats(req, res, next) {
     try {
       const stats = await statsService.getStats();
 
@@ -11,10 +11,7 @@ const statsController = {
         data: stats,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: error.message,
-      });
+      next(error);
     }
   },
 };

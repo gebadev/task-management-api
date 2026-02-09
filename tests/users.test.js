@@ -302,7 +302,7 @@ describe('User API Tests', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'Invalid user ID');
+      expect(response.body).toHaveProperty('error', 'Validation failed');
     });
   });
 });
