@@ -1,5 +1,6 @@
 const express = require('express');
 const routes = require('./routes');
+const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -27,7 +28,7 @@ app.use((req, res) => {
   });
 });
 
-// Error handler will be added by Issue #9
-// app.use(errorHandler);
+// Global error handler (must be last middleware)
+app.use(errorHandler);
 
 module.exports = app;

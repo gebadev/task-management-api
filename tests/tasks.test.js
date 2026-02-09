@@ -92,7 +92,7 @@ describe('Tasks API Tests', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Title is required');
+      expect(response.body.error).toBe('Validation failed');
     });
 
     it('should reject task creation with invalid priority', async () => {
@@ -104,9 +104,10 @@ describe('Tasks API Tests', () => {
       const response = await request(app)
         .post('/api/tasks')
         .send(taskData)
-        .expect(500);
+        .expect(400);
 
       expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('Validation failed');
     });
   });
 
@@ -205,7 +206,7 @@ describe('Tasks API Tests', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Invalid task ID');
+      expect(response.body.error).toBe('Validation failed');
     });
   });
 
@@ -375,7 +376,7 @@ describe('Tasks API Tests', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Invalid task ID');
+      expect(response.body.error).toBe('Validation failed');
     });
 
     it('should return 400 when assignee_id is not provided', async () => {
@@ -385,7 +386,7 @@ describe('Tasks API Tests', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('assignee_id is required');
+      expect(response.body.error).toBe('Validation failed');
     });
 
     it('should return 400 for invalid assignee_id', async () => {

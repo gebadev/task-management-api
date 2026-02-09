@@ -1,22 +1,18 @@
-const { validationResult } = require('express-validator');
 const userService = require('../services/userService');
 
 /**
  * すべてのユーザーを取得
  * GET /api/users
  */
-async function getUsers(req, res) {
+async function getUsers(req, res, next) {
   try {
     const users = await userService.getAllUsers();
     res.json({
       success: true,
       data: users,
     });
-  } catch {
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch users',
-    });
+  } catch (error) {
+    next(error);
   }
 }
 
@@ -24,17 +20,9 @@ async function getUsers(req, res) {
  * IDでユーザーを取得
  * GET /api/users/:id
  */
-async function getUserById(req, res) {
+async function getUserById(req, res, next) {
   try {
-    const userId = parseInt(req.params.id, 10);
-
-    if (isNaN(userId)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid user ID',
-      });
-    }
-
+    const userId = req.params.id;
     const user = await userService.getUserById(userId);
 
     if (!user) {
@@ -48,11 +36,8 @@ async function getUserById(req, res) {
       success: true,
       data: user,
     });
-  } catch {
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch user',
-    });
+  } catch (error) {
+    next(error);
   }
 }
 
@@ -60,18 +45,8 @@ async function getUserById(req, res) {
  * 新しいユーザーを作成
  * POST /api/users
  */
-async function createUser(req, res) {
+async function createUser(req, res, next) {
   try {
-    // バリデーション結果をチェック
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation failed',
-        details: errors.array(),
-      });
-    }
-
     const { username, email, password } = req.body;
 
     const newUser = await userService.createUser({
@@ -99,10 +74,7 @@ async function createUser(req, res) {
       });
     }
 
-    res.status(500).json({
-      success: false,
-      error: 'Failed to create user',
-    });
+    next(error);
   }
 }
 
