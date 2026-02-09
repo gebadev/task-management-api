@@ -1,4 +1,4 @@
-const sqlite3 = require('sqlite3').verbose();
+const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
@@ -14,99 +14,69 @@ if (!fs.existsSync(DATA_DIR)) {
 
 /**
  * データベース接続を取得
- * @returns {Promise<sqlite3.Database>}
+ * @returns {Promise<Database>}
  */
-function getConnection() {
-  return new Promise((resolve, reject) => {
-    const db = new sqlite3.Database(DB_PATH, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        // 外部キー制約を有効化
-        db.run('PRAGMA foreign_keys = ON', (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(db);
-          }
-        });
-      }
-    });
-  });
+async function getConnection() {
+  const db = new Database(DB_PATH);
+  // 外部キー制約を有効化
+  db.pragma('foreign_keys = ON');
+  return db;
 }
 
 /**
  * データベース接続を閉じる
- * @param {sqlite3.Database} db
+ * @param {Database} db
  * @returns {Promise<void>}
  */
-function closeConnection(db) {
-  return new Promise((resolve, reject) => {
-    db.close((err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
+async function closeConnection(db) {
+  db.close();
 }
 
 /**
  * クエリを実行（SELECT用）
- * @param {sqlite3.Database} db
+ * @param {Database} db
  * @param {string} sql
  * @param {Array} params
  * @returns {Promise<Array>}
  */
-function query(db, sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(rows);
-      }
-    });
-  });
+async function query(db, sql, params = []) {
+  const stmt = db.prepare(sql);
+  return stmt.all(...params);
 }
 
 /**
  * クエリを実行（INSERT/UPDATE/DELETE用）
- * @param {sqlite3.Database} db
+ * @param {Database} db
  * @param {string} sql
  * @param {Array} params
  * @returns {Promise<{lastID: number, changes: number}>}
  */
-function run(db, sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({ lastID: this.lastID, changes: this.changes });
-      }
-    });
-  });
+async function run(db, sql, params = []) {
+  const stmt = db.prepare(sql);
+  const result = stmt.run(...params);
+  return { lastID: result.lastInsertRowid, changes: result.changes };
 }
 
 /**
  * 単一行を取得
- * @param {sqlite3.Database} db
+ * @param {Database} db
  * @param {string} sql
  * @param {Array} params
  * @returns {Promise<Object|undefined>}
  */
-function get(db, sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(row);
-      }
-    });
-  });
+async function get(db, sql, params = []) {
+  const stmt = db.prepare(sql);
+  return stmt.get(...params);
+}
+
+/**
+ * 複数のSQL文を実行（スキーマ適用などに使用）
+ * @param {Database} db
+ * @param {string} sql
+ * @returns {void}
+ */
+function exec(db, sql) {
+  db.exec(sql);
 }
 
 // 高レベルAPI - 接続の管理を自動化
@@ -163,6 +133,7 @@ module.exports = {
   query,
   run,
   get,
+  exec,
   DB_PATH,
   // 高レベルAPI（推奨）
   ...dbAPI

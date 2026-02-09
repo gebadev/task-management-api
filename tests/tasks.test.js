@@ -27,7 +27,7 @@ describe('Tasks API Tests', () => {
   beforeEach(async () => {
     // 各テスト前にタスクテーブルをクリア
     await db.run('DELETE FROM tasks');
-    await db.run('DELETE FROM sqlite_sequence WHERE name="tasks"');
+    await db.run("DELETE FROM sqlite_sequence WHERE name='tasks'");
     
     // テスト用ユーザーを作成（creator_id用）
     await db.run(`
@@ -307,20 +307,11 @@ async function initTestDatabase() {
   // スキーマファイルを読み取り
   const schemaPath = path.join(__dirname, '../src/db/schema.sql');
   const schema = fs.readFileSync(schemaPath, 'utf8');
-  
-  // SQL文を分割して実行
-  const statements = schema
-    .replace(/--.*$/gm, '') // コメントを削除
-    .split(';')
-    .map(stmt => stmt.trim())
-    .filter(stmt => stmt.length > 0);
-  
-  for (const statement of statements) {
-    try {
-      await db.run(statement);
-    } catch (error) {
-      // CREATE TABLE IF NOT EXISTS などは重複実行してもエラーにならないはず
-      console.warn(`Warning executing statement: ${statement}`, error.message);
-    }
+
+  const connection = await db.getConnection();
+  try {
+    db.exec(connection, schema);
+  } finally {
+    await db.closeConnection(connection);
   }
 }
