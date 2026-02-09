@@ -21,13 +21,7 @@ async function initTestDatabase() {
     // スキーマを適用
     const schemaPath = path.join(__dirname, '../src/db/schema.sql');
     const schema = fs.readFileSync(schemaPath, 'utf8');
-
-    await new Promise((resolve, reject) => {
-      connection.exec(schema, (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
+    db.exec(connection, schema);
   } finally {
     await db.closeConnection(connection);
   }
@@ -205,19 +199,14 @@ describe('User API Tests', () => {
 
       await request(app).post('/api/users').send(newUser);
 
-      const connection = await db.getConnection();
-      try {
-        const user = await db.get(connection, 'SELECT password_hash FROM users WHERE username = ?', [
-          'testuser',
-        ]);
+      const user = await db.get('SELECT password_hash FROM users WHERE username = ?', [
+        'testuser',
+      ]);
 
-        expect(user).toBeDefined();
-        expect(user.password_hash).toBeDefined();
-        expect(user.password_hash).not.toBe('password123');
-        expect(user.password_hash).toMatch(/^\$2[aby]\$.{56}$/);
-      } finally {
-        await db.closeConnection(connection);
-      }
+      expect(user).toBeDefined();
+      expect(user.password_hash).toBeDefined();
+      expect(user.password_hash).not.toBe('password123');
+      expect(user.password_hash).toMatch(/^\$2[aby]\$.{56}$/);
     });
   });
 

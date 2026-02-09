@@ -21,13 +21,7 @@ async function initTestDatabase() {
     // スキーマを適用
     const schemaPath = path.join(__dirname, '../src/db/schema.sql');
     const schema = fs.readFileSync(schemaPath, 'utf8');
-
-    await new Promise((resolve, reject) => {
-      connection.exec(schema, (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
+    db.exec(connection, schema);
   } finally {
     await db.closeConnection(connection);
   }
@@ -37,25 +31,20 @@ async function initTestDatabase() {
  * テストユーザーとタスクを作成
  */
 async function createTestData() {
-  const connection = await db.getConnection();
-  try {
-    // テスト用のユーザーとタスクを作成
-    const userResult = await db.run(connection,
-      'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
-      ['testuser', 'test@example.com', 'hashedpassword']
-    );
-    const testUserId = userResult.lastID;
+  // テスト用のユーザーとタスクを作成（高レベルAPIを使用）
+  const userResult = await db.run(
+    'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
+    ['testuser', 'test@example.com', 'hashedpassword']
+  );
+  const testUserId = userResult.lastID;
 
-    const taskResult = await db.run(connection,
-      'INSERT INTO tasks (title, description, creator_id) VALUES (?, ?, ?)',
-      ['Test Task', 'Test Description', testUserId]
-    );
-    const testTaskId = taskResult.lastID;
+  const taskResult = await db.run(
+    'INSERT INTO tasks (title, description, creator_id) VALUES (?, ?, ?)',
+    ['Test Task', 'Test Description', testUserId]
+  );
+  const testTaskId = taskResult.lastID;
 
-    return { testUserId, testTaskId };
-  } finally {
-    await db.closeConnection(connection);
-  }
+  return { testUserId, testTaskId };
 }
 
 describe('Comments API Tests', () => {
