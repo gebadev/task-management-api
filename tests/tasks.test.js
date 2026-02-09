@@ -271,7 +271,7 @@ describe('Tasks API Tests', () => {
 
     beforeEach(async () => {
       const result = await db.run(`
-        INSERT INTO tasks (title, description, status, priority, creator_id) 
+        INSERT INTO tasks (title, description, status, priority, creator_id)
         VALUES (?, ?, ?, ?, ?)
       `, ['Task to Delete', 'Will be deleted', 'todo', 'medium', 1]);
       taskId = result.lastID;
@@ -298,6 +298,104 @@ describe('Tasks API Tests', () => {
 
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Task not found');
+    });
+  });
+
+  describe('PUT /api/tasks/:id/assign', () => {
+    let taskId;
+    let assigneeId;
+
+    beforeEach(async () => {
+      // タスクを作成
+      const taskResult = await db.run(`
+        INSERT INTO tasks (title, description, status, priority, creator_id)
+        VALUES (?, ?, ?, ?, ?)
+      `, ['Task to Assign', 'Will be assigned', 'todo', 'medium', 1]);
+      taskId = taskResult.lastID;
+
+      // 割り当て用ユーザーを作成
+      await db.run(`
+        INSERT OR IGNORE INTO users (id, username, email, password_hash)
+        VALUES (2, 'assignee', 'assignee@example.com', 'hashedpassword')
+      `);
+      assigneeId = 2;
+    });
+
+    it('should assign a task to a user', async () => {
+      const response = await request(app)
+        .put(`/api/tasks/${taskId}/assign`)
+        .send({ assignee_id: assigneeId })
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.assignee_id).toBe(assigneeId);
+      expect(response.body.data.id).toBe(taskId);
+    });
+
+    it('should unassign a task by setting assignee_id to null', async () => {
+      // まず割り当てる
+      await request(app)
+        .put(`/api/tasks/${taskId}/assign`)
+        .send({ assignee_id: assigneeId });
+
+      // 割り当て解除
+      const response = await request(app)
+        .put(`/api/tasks/${taskId}/assign`)
+        .send({ assignee_id: null })
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.assignee_id).toBeNull();
+    });
+
+    it('should return 404 for non-existent task', async () => {
+      const response = await request(app)
+        .put('/api/tasks/999/assign')
+        .send({ assignee_id: assigneeId })
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('Task not found');
+    });
+
+    it('should return 404 for non-existent assignee', async () => {
+      const response = await request(app)
+        .put(`/api/tasks/${taskId}/assign`)
+        .send({ assignee_id: 999 })
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('Assignee not found');
+    });
+
+    it('should return 400 for invalid task ID', async () => {
+      const response = await request(app)
+        .put('/api/tasks/invalid/assign')
+        .send({ assignee_id: assigneeId })
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('Invalid task ID');
+    });
+
+    it('should return 400 when assignee_id is not provided', async () => {
+      const response = await request(app)
+        .put(`/api/tasks/${taskId}/assign`)
+        .send({})
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('assignee_id is required');
+    });
+
+    it('should return 400 for invalid assignee_id', async () => {
+      const response = await request(app)
+        .put(`/api/tasks/${taskId}/assign`)
+        .send({ assignee_id: 'invalid' })
+        .expect(400);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('Invalid assignee_id');
     });
   });
 });

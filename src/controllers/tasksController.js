@@ -156,26 +156,80 @@ const tasksController = {
   async deleteTask(req, res) {
     try {
       const id = parseInt(req.params.id, 10);
-      
+
       if (isNaN(id)) {
         return res.status(400).json({
           success: false,
           error: 'Invalid task ID'
         });
       }
-      
+
       const deleted = await taskService.deleteTask(id);
-      
+
       if (!deleted) {
         return res.status(404).json({
           success: false,
           error: 'Task not found'
         });
       }
-      
+
       res.json({
         success: true,
         data: { message: 'Task deleted successfully' }
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  },
+
+  // PUT /api/tasks/:id/assign - タスク割り当て
+  async assignTask(req, res) {
+    try {
+      const id = parseInt(req.params.id, 10);
+
+      if (isNaN(id)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid task ID'
+        });
+      }
+
+      const { assignee_id } = req.body;
+
+      // assignee_idが明示的に提供されていない場合はエラー
+      if (assignee_id === undefined) {
+        return res.status(400).json({
+          success: false,
+          error: 'assignee_id is required'
+        });
+      }
+
+      // assignee_idがnullでない場合は数値に変換
+      const parsedAssigneeId = assignee_id === null ? null : parseInt(assignee_id, 10);
+
+      // 数値でない場合（nullは除く）はエラー
+      if (assignee_id !== null && isNaN(parsedAssigneeId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid assignee_id'
+        });
+      }
+
+      const result = await taskService.assignTask(id, parsedAssigneeId);
+
+      if (result.error) {
+        return res.status(result.status).json({
+          success: false,
+          error: result.error
+        });
+      }
+
+      res.json({
+        success: true,
+        data: result.task
       });
     } catch (error) {
       res.status(500).json({
