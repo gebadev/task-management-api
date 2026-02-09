@@ -17,4 +17,7 @@ router.put('/:id', tasksController.updateTask);
 // DELETE /api/tasks/:id - タスク削除
 router.delete('/:id', tasksController.deleteTask);
 
+// PUT /api/tasks/:id/assign - タスク割り当て
+router.put('/:id/assign', tasksController.assignTask);
+
 module.exports = router;

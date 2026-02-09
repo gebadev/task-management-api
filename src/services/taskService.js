@@ -197,14 +197,49 @@ const taskService = {
     if (!existingTask) {
       return false;
     }
-    
+
     const query = 'DELETE FROM tasks WHERE id = ?';
-    
+
     try {
       const result = await db.run(query, [id]);
       return result.changes > 0;
     } catch (error) {
       throw new Error(`Failed to delete task: ${error.message}`);
+    }
+  },
+
+  // タスク割り当て
+  async assignTask(taskId, assigneeId) {
+    // タスクの存在確認
+    const existingTask = await this.getTaskById(taskId);
+    if (!existingTask) {
+      return { error: 'Task not found', status: 404 };
+    }
+
+    // assigneeIdがnullでない場合、ユーザーの存在確認
+    if (assigneeId !== null) {
+      const userQuery = 'SELECT id FROM users WHERE id = ?';
+      try {
+        const user = await db.get(userQuery, [assigneeId]);
+        if (!user) {
+          return { error: 'Assignee not found', status: 404 };
+        }
+      } catch (error) {
+        throw new Error(`Failed to verify assignee: ${error.message}`);
+      }
+    }
+
+    // タスクの割り当てを更新
+    const updateQuery = 'UPDATE tasks SET assignee_id = ? WHERE id = ?';
+
+    try {
+      await db.run(updateQuery, [assigneeId, taskId]);
+
+      // 更新されたタスクを取得して返す
+      const updatedTask = await this.getTaskById(taskId);
+      return { task: updatedTask };
+    } catch (error) {
+      throw new Error(`Failed to assign task: ${error.message}`);
     }
   }
 };
