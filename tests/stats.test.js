@@ -27,7 +27,7 @@ describe('Stats API Tests', () => {
     await db.run('DELETE FROM tasks');
     await db.run('DELETE FROM users');
     await db.run(
-      'DELETE FROM sqlite_sequence WHERE name IN ("comments", "tasks", "users")'
+      "DELETE FROM sqlite_sequence WHERE name IN ('comments', 'tasks', 'users')"
     );
 
     // テスト用ユーザーを作成
